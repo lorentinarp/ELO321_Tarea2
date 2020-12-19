@@ -16,7 +16,7 @@
 
 struct timeval tv1, tv2;
 
-int sudoku_array [][]={
+int sudoku_array [9][9]={
   {6,2,4,5,3,9,1,8,7},
   {5,1,9,7,2,8,6,3,4},
   {8,3,7,6,1,4,2,9,5},
