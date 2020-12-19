@@ -51,58 +51,48 @@ struct Area
  */
 int validity_check(struct Area A);
 
+/*
+ * @brief   : hace la revisión completa de sudoku_array sin threads
+ * @param - : -
+ * @return  : si chequeo falla, retorna 0; en otro caso, retorna 1
+ */
+int sol_con_OpenMP_API();
+
 int main(){
-  gettimeofday(&tv1, NULL);
-  #pragma omp parallel
-  {
-  struct Area A;
-  int i,j;
+  int repeticiones = 100;
+  int i;
+  int valida = 1;
+  double promedio = 0.0;
 
-  /* Chequeo de filas */
-  #pragma omp parallel for
-  for (i = 0 ; i < 9 ; i++){
-    A.init_row = i;
-    A.fin_row = i;
-    A.init_col = 0;
-    A.fin_col = 8;
-    rows_checked[i] = validity_check(A);
-  }
+  /* Tomar medición de tiempos para obtener promedio de las repeticiones */
+  for (i = 0; i < repeticiones; i++) {
+    /* Punto de referencia de inicio */
+    gettimeofday(&tv1, NULL);
 
-  /* Chequeo de columnas*/
-  #pragma omp parallel for
-  for (i = 0 ; i < 9 ; i++){
-    A.init_row = 0;
-    A.fin_row = 8;
-    A.init_col = i;
-    A.fin_col = i;
-    cols_checked[i] = validity_check(A);
+    /* Ejecutar un proceso de revisión completa de sudoku_array */
+    valida = sol_con_OpenMP_API();
+
+    /* Punto de referencia de fin */
+    gettimeofday(&tv2, NULL);
+
+    /* Imprimir tiempo que tardó un proceso de revisión */
+    double t = (double)(tv2.tv_usec - tv1.tv_usec) / 1000000.0 + (double)(tv2.tv_sec - tv1.tv_sec);
+    printf("Time = %f sec\n", t);
+
+    promedio += t;
   }
 
-  /* Chequeo de casillas*/
-  int k = 0;
-  #pragma omp parallel for
-  for (i = 0 ; i < 3 ; i++){
-    #pragma omp parallel for
-    for (j = 0 ; j < 3 ; j++){
-      A.init_row = i*3;
-      A.fin_row = i*3+2;
-      A.init_col = j*3;
-      A.fin_col = j*3+2;
-      sub_grids_checked[k] = validity_check(A);
-      k++;
-    }
-  }
+  /* Imprimir tiempo que tardaron las repeticiones en promedio */
+  promedio = promedio / (double)repeticiones;
+  printf("Time promedio = %f sec\n", promedio);
 
-  #pragma omp parallel for
-  for (i = 0 ; i < 9 ; i++){
-    if ((rows_checked[i] == 0) || (cols_checked[i] == 0) || (sub_grids_checked[i] == 0)){
-      printf("No es solución válida\n");
-      return 0;
-    }
-  }
-  printf("Es solución válida\n");
-  return 1;
-  }
+  /* Imprimir resultado de evaluación de sudoku_array */
+  if (valida == 0)
+    printf("Contenido del arreglo no es solución válida.\n");
+  else
+    printf("Contenido del arreglo es solución válida.\n");
+
+  return;
 }
 
 int validity_check(struct Area A){
@@ -139,4 +129,58 @@ int validity_check(struct Area A){
   printf ("Time = %f sec\n", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000.0 +
   (double) (tv2.tv_sec - tv1.tv_sec)); 
   return 1;
+}
+
+int sol_con_OpenMP_API() {
+  #pragma omp parallel
+  {
+  struct Area A;
+  int i, j;
+  int sol_valida = 1;
+
+  /* Chequeo de filas */
+  #pragma omp parallel for
+  for (i = 0; i < 9; i++) {
+    A.init_row = i;
+    A.fin_row = i;
+    A.init_col = 0;
+    A.fin_col = 8;
+    rows_checked[i] = validity_check(A);
+  }
+
+  /* Chequeo de columnas*/
+  #pragma omp parallel for
+  for (i = 0; i < 9; i++) {
+    A.init_row = 0;
+    A.fin_row = 8;
+    A.init_col = i;
+    A.fin_col = i;
+    cols_checked[i] = validity_check(A);
+  }
+
+  /* Chequeo de casillas*/
+  int k = 0;
+  #pragma omp parallel for
+  for (i = 0; i < 3; i++) {
+    #pragma omp parallel for
+    for (j = 0; j < 3; j++) {
+      A.init_row = i * 3;
+      A.fin_row = i * 3 + 2;
+      A.init_col = j * 3;
+      A.fin_col = j * 3 + 2;
+      sub_grids_checked[k] = validity_check(A);
+      k++;
+    }
+  }
+
+  /* Revisar si hay algún chequeo igual a 0 para todas las filas, columnas y subcuadrículas */
+  #pragma omp parallel for
+  for (i = 0; i < 9; i++) {
+    if ((rows_checked[i] == 0) || (cols_checked[i] == 0) || (sub_grids_checked[i] == 0)) {
+      sol_valida = 0;
+    }
+  }
+
+  return sol_valida;
+  }
 }
