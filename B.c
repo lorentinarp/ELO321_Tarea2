@@ -92,7 +92,7 @@ int main(){
   else
     printf("Contenido del arreglo es solución válida.\n");
 
-  return;
+  return 0;
 }
 
 int validity_check(struct Area A){
@@ -113,7 +113,7 @@ int validity_check(struct Area A){
     }
   }
 
-  #pragma omp parallel for
+  // #pragma omp parallel for
   for (k = 0 ; k < 9 ; k++){
     /* Revisar si hay algún dígito entre 1 y 9 que esté ausente en B[9] */
     if (B[k] == 0) { 
@@ -126,8 +126,6 @@ int validity_check(struct Area A){
 }
 
 int sol_con_OpenMP_API() {
-  #pragma omp parallel
-  {
   struct Area A;
   int i, j;
   int sol_valida = 1;
@@ -176,5 +174,4 @@ int sol_con_OpenMP_API() {
   }
 
   return sol_valida;
-  }
 }
