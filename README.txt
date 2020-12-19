@@ -8,15 +8,19 @@ Integrantes:
 ## Parte A
 La parte A de la tarea se desarrolló en un código, A.c
 
-...
+...cómo se compila y ejecuta...
+
 
 ## Parte B
+
 
 
 ## Parte C
 
 
+
 ## Parte D
 La parte D de la tarea se desarrolló en un texto, report.txt
+
 
 
