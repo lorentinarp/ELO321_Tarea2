@@ -52,7 +52,7 @@ struct Area
 int validity_check(struct Area A);
 
 /*
- * @brief   : hace la revisión completa de sudoku_array sin threads
+ * @brief   : hace la revisión completa de sudoku_array con OpenMP API
  * @param - : -
  * @return  : si chequeo falla, retorna 0; en otro caso, retorna 1
  */
@@ -116,18 +116,12 @@ int validity_check(struct Area A){
   #pragma omp parallel for
   for (k = 0 ; k < 9 ; k++){
     /* Revisar si hay algún dígito entre 1 y 9 que esté ausente en B[9] */
-    if (B[k] == 0) {
-      gettimeofday(&tv2, NULL);
-      printf ("Time = %f sec\n", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000.0 +
-      (double) (tv2.tv_sec - tv1.tv_sec)); 
+    if (B[k] == 0) { 
       return 0;
     }
   }
 
   /* En caso de que todos los dígitos del 1 al 9 estén en B[9] */
-  gettimeofday(&tv2, NULL);
-  printf ("Time = %f sec\n", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000.0 +
-  (double) (tv2.tv_sec - tv1.tv_sec)); 
   return 1;
 }
 
