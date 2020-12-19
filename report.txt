@@ -1,0 +1,4 @@
+## Parte D
+¿Cómo cambian los resultados obtenidos para el tiempo total de ejecución en cada caso?
+
+...
