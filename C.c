@@ -3,13 +3,14 @@
 * @author : Camilo Donoso Collao
 *           Loreto Romero Ponce
 * @date   : 19/12/2020
-* @brief  : Código para tarea 02 en ELO 321, semestre 2020-2
+* @brief  : Cï¿½digo para tarea 02 en ELO 321, semestre 2020-2
 *           Corresponde a la parte C.
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <pthread.h>
 
 /* Variables globales */
 
@@ -41,17 +42,17 @@ struct Area
   int fin_col;
 };
 
-/* Declaración de funciones */
+/* Declaraciï¿½n de funciones */
 
 /*
- * @brief   : hace un chequeo de un área dada de sudoku_array
- * @param A : estructura que contiene los índices del área a chequear del arreglo bidimensional
+ * @brief   : hace un chequeo de un ï¿½rea dada de sudoku_array
+ * @param A : estructura que contiene los ï¿½ndices del ï¿½rea a chequear del arreglo bidimensional
  * @return  : 
  */
-void* validity_check(void*);
+void* validity_check(void *arg);
 
 /*
- * @brief   : hace la revisión completa de sudoku_array con threads generados con POSIX API
+ * @brief   : hace la revisiï¿½n completa de sudoku_array con threads generados con POSIX API
  * @param - : -
  * @return  : si chequeo falla, retorna 0; en otro caso, retorna 1
  */
@@ -63,18 +64,18 @@ int main() {
   int valida = 1;
   double promedio = 0.0;
 
-  /* Tomar medición de tiempos para obtener promedio de las repeticiones */
+  /* Tomar mediciï¿½n de tiempos para obtener promedio de las repeticiones */
   for (i = 0; i < repeticiones; i++) {
     /* Punto de referencia de inicio */
     gettimeofday(&tv1, NULL);
 
-    /* Ejecutar un proceso de revisión completa de sudoku_array */
+    /* Ejecutar un proceso de revisiï¿½n completa de sudoku_array */
     valida = sol_con_threads_POSIXAPI();
 
     /* Punto de referencia de fin, cuando todos los threads terminaron su trabajo */
     gettimeofday(&tv2, NULL);
 
-    /* Imprimir tiempo que tardó un proceso de revisión */
+    /* Imprimir tiempo que tardï¿½ un proceso de revisiï¿½n */
     double t = (double)(tv2.tv_usec - tv1.tv_usec) / 1000000.0 + (double)(tv2.tv_sec - tv1.tv_sec);
     printf("Time = %f sec\n", t);
 
@@ -85,22 +86,23 @@ int main() {
   promedio = promedio / (double)repeticiones;
   printf("Time promedio = %f sec\n", promedio);
 
-  /* Imprimir resultado de evaluación de sudoku_array */
+  /* Imprimir resultado de evaluaciï¿½n de sudoku_array */
   if (valida == 0)
-    printf("Contenido del arreglo no es solución válida.\n");
+    printf("Contenido del arreglo no es soluciï¿½n vï¿½lida.\n");
   else
-    printf("Contenido del arreglo es solución válida.\n");
+    printf("Contenido del arreglo es soluciï¿½n vï¿½lida.\n");
 
   return;
 }
 
-void* validity_check(void*) { //MODIFICAR PARA C
+void* validity_check(void *arg) { //MODIFICAR PARA C
   int i, j, k;
   int B[9] = { 0,0,0,0,0,0,0,0,0 };
+  struct Area *A = arg;
 
-  /* Modificar las posiciones de B según los dígitos presentes en sudoku_array */
-  for (i = A.init_row; i <= A.fin_row; i++) {
-    for (j = A.init_col; j <= A.fin_col; j++) {
+  /* Modificar las posiciones de B segï¿½n los dï¿½gitos presentes en sudoku_array */
+  for (i = A->init_row; i <= A->fin_row; i++) {
+    for (j = A->init_col; j <= A->fin_col; j++) {
       for (k = 0; k < 9; k++) {
         if ((sudoku_array[i][j] == k + 1) && (B[k] == 0)) {
           B[k] = 1;
@@ -110,13 +112,13 @@ void* validity_check(void*) { //MODIFICAR PARA C
   }
 
   for (k = 0; k < 9; k++) {
-    /* Revisar si hay algún dígito entre 1 y 9 que esté ausente en B[9] */
+    /* Revisar si hay algï¿½n dï¿½gito entre 1 y 9 que estï¿½ ausente en B[9] */
     if (B[k] == 0) {
       return 0;
     }
   }
 
-  /* En caso de que todos los dígitos del 1 al 9 estén en B[9] */
+  /* En caso de que todos los dï¿½gitos del 1 al 9 estï¿½n en B[9] */
   return 1;
 }
 
@@ -125,38 +127,41 @@ int sol_con_threads_POSIXAPI() { //MODIFICAR PARA C
   int i, j;
   int sol_valida = 1;
 
+  /* ID de los hilos */
+  pthread_t threadID[11];
+
   /* Chequeo de filas */
   for (i = 0; i < 9; i++) {
     A.init_row = i;
     A.fin_row = i;
     A.init_col = 0;
     A.fin_col = 8;
-    rows_checked[i] = validity_check();
+    rows_checked[i] = pthread_create(&threadID[0], NULL, validity_check, &A);
   }
 
   /* Chequeo de columnas*/
-  for (i = 0; i < 9; i++) {
-    A.init_row = 0;
-    A.fin_row = 8;
-    A.init_col = i;
-    A.fin_col = i;
-    cols_checked[i] = validity_check();
-  }
+  // for (i = 0; i < 9; i++) {
+  //   A.init_row = 0;
+  //   A.fin_row = 8;
+  //   A.init_col = i;
+  //   A.fin_col = i;
+  //   cols_checked[i] = validity_check();
+  // }
 
-  /* Chequeo de casillas*/
-  int k = 0;
-  for (i = 0; i < 3; i++) {
-    for (j = 0; j < 3; j++) {
-      A.init_row = i * 3;
-      A.fin_row = i * 3 + 2;
-      A.init_col = j * 3;
-      A.fin_col = j * 3 + 2;
-      sub_grids_checked[k] = validity_check();
-      k++;
-    }
-  }
+  // /* Chequeo de casillas*/
+  // int k = 0;
+  // for (i = 0; i < 3; i++) {
+  //   for (j = 0; j < 3; j++) {
+  //     A.init_row = i * 3;
+  //     A.fin_row = i * 3 + 2;
+  //     A.init_col = j * 3;
+  //     A.fin_col = j * 3 + 2;
+  //     sub_grids_checked[k] = validity_check();
+  //     k++;
+  //   }
+  // }
 
-  /* Revisar si hay algún chequeo igual a 0 para todas las filas, columnas y subcuadrículas */
+  /* Revisar si hay algï¿½n chequeo igual a 0 para todas las filas, columnas y subcuadrï¿½culas */
   for (i = 0; i < 9; i++) {
     if ((rows_checked[i] == 0) || (cols_checked[i] == 0) || (sub_grids_checked[i] == 0)) {
       sol_valida = 0;

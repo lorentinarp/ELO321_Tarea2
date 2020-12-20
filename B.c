@@ -16,7 +16,7 @@
 
 struct timeval tv1, tv2;
 
-int sudoku_array [9][9]={
+int sudoku_array[9][9] = {
   {6,2,4,5,3,9,1,8,7},
   {5,1,9,7,2,8,6,3,4},
   {8,3,7,6,1,4,2,9,5},
@@ -98,6 +98,8 @@ int main(){
 int validity_check(struct Area A){
   int i,j,k;
   int B[9] = {0,0,0,0,0,0,0,0,0};
+  omp_lock_t writelock;
+  omp_init_lock(&writelock);
 
   /* Modificar las posiciones de B según los dígitos presentes en sudoku_array */
   #pragma omp parallel for
@@ -113,14 +115,12 @@ int validity_check(struct Area A){
     }
   }
 
-  // #pragma omp parallel for
   for (k = 0 ; k < 9 ; k++){
     /* Revisar si hay algún dígito entre 1 y 9 que esté ausente en B[9] */
     if (B[k] == 0) { 
       return 0;
     }
   }
-
   /* En caso de que todos los dígitos del 1 al 9 estén en B[9] */
   return 1;
 }
@@ -129,6 +129,8 @@ int sol_con_OpenMP_API() {
   struct Area A;
   int i, j;
   int sol_valida = 1;
+  omp_lock_t writelock;
+  omp_init_lock(&writelock);
 
   /* Chequeo de filas */
   #pragma omp parallel for
@@ -137,7 +139,10 @@ int sol_con_OpenMP_API() {
     A.fin_row = i;
     A.init_col = 0;
     A.fin_col = 8;
+    omp_set_lock(&writelock);
+    /*Critical section*/
     rows_checked[i] = validity_check(A);
+    omp_unset_lock(&writelock);
   }
 
   /* Chequeo de columnas*/
@@ -147,7 +152,10 @@ int sol_con_OpenMP_API() {
     A.fin_row = 8;
     A.init_col = i;
     A.fin_col = i;
+    omp_set_lock(&writelock);
+    /*Critical section*/
     cols_checked[i] = validity_check(A);
+    omp_unset_lock(&writelock);
   }
 
   /* Chequeo de casillas*/
@@ -160,7 +168,10 @@ int sol_con_OpenMP_API() {
       A.fin_row = i * 3 + 2;
       A.init_col = j * 3;
       A.fin_col = j * 3 + 2;
+      omp_set_lock(&writelock);
+      /*Critical section*/
       sub_grids_checked[k] = validity_check(A);
+      omp_unset_lock(&writelock);
       k++;
     }
   }
@@ -172,6 +183,5 @@ int sol_con_OpenMP_API() {
       sol_valida = 0;
     }
   }
-
   return sol_valida;
 }

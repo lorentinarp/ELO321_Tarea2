@@ -91,7 +91,7 @@ int main(){
   else
     printf("Contenido del arreglo es solución válida.\n");
 
-  return;
+  return 0;
 }
 
 int validity_check(struct Area A){
