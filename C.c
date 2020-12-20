@@ -16,6 +16,9 @@
 
 struct timeval tv1, tv2;
 
+/* Mutex lock */
+pthread_mutex_t lock; 
+
 int sudoku_array[9][9] = {
   {6,2,4,5,3,9,1,8,7},
   {5,1,9,7,2,8,6,3,4},
@@ -40,6 +43,7 @@ struct Area
   int fin_row;
   int init_col;
   int fin_col;
+  int *pnt;
 };
 
 /* Declaraci�n de funciones */
@@ -92,13 +96,15 @@ int main() {
   else
     printf("Contenido del arreglo es soluci�n v�lida.\n");
 
-  return;
+  return 0;
 }
 
 void* validity_check(void *arg) { //MODIFICAR PARA C
   int i, j, k;
   int B[9] = { 0,0,0,0,0,0,0,0,0 };
   struct Area *A = arg;
+  
+  // printf("%i %i %i %i\n",A->init_row,A->fin_row,A->init_col,A->fin_col);
 
   /* Modificar las posiciones de B seg�n los d�gitos presentes en sudoku_array */
   for (i = A->init_row; i <= A->fin_row; i++) {
@@ -111,62 +117,74 @@ void* validity_check(void *arg) { //MODIFICAR PARA C
     }
   }
 
-  for (k = 0; k < 9; k++) {
+  
+  int exit = 1;
+  k = 0;
+  while ((k < 9) && (exit != 0)){
     /* Revisar si hay alg�n d�gito entre 1 y 9 que est� ausente en B[9] */
     if (B[k] == 0) {
-      return 0;
+      exit = 0;
     }
+    k++;
   }
-
-  /* En caso de que todos los d�gitos del 1 al 9 est�n en B[9] */
-  return 1;
+  (*A->pnt) = exit;
+  
 }
 
 int sol_con_threads_POSIXAPI() { //MODIFICAR PARA C
-  struct Area A;
+  struct Area rows[9], cols[9], grids[9];
   int i, j;
   int sol_valida = 1;
 
   /* ID de los hilos */
-  pthread_t threadID[11];
+  pthread_t threadID[27];
 
   /* Chequeo de filas */
   for (i = 0; i < 9; i++) {
-    A.init_row = i;
-    A.fin_row = i;
-    A.init_col = 0;
-    A.fin_col = 8;
-    rows_checked[i] = pthread_create(&threadID[0], NULL, validity_check, &A);
+    rows[i].init_row = i;
+    rows[i].fin_row = i;
+    rows[i].init_col = 0;
+    rows[i].fin_col = 8;
+    rows[i].pnt = &rows_checked[i];
+    pthread_create(&threadID[i], NULL, validity_check, &rows[i]);
   }
 
   /* Chequeo de columnas*/
-  // for (i = 0; i < 9; i++) {
-  //   A.init_row = 0;
-  //   A.fin_row = 8;
-  //   A.init_col = i;
-  //   A.fin_col = i;
-  //   cols_checked[i] = validity_check();
-  // }
+  for (i = 0; i < 9; i++) {
+    cols[i].init_row = 0;
+    cols[i].fin_row = 8;
+    cols[i].init_col = i;
+    cols[i].fin_col = i;
+    cols[i].pnt = &cols_checked[i];
+    pthread_create(&threadID[i+9], NULL, validity_check, &cols[i]);
+  }
 
-  // /* Chequeo de casillas*/
-  // int k = 0;
-  // for (i = 0; i < 3; i++) {
-  //   for (j = 0; j < 3; j++) {
-  //     A.init_row = i * 3;
-  //     A.fin_row = i * 3 + 2;
-  //     A.init_col = j * 3;
-  //     A.fin_col = j * 3 + 2;
-  //     sub_grids_checked[k] = validity_check();
-  //     k++;
-  //   }
-  // }
+  /* Chequeo de casillas*/
+  int k = 0;
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      grids[k].init_row = i * 3;
+      grids[k].fin_row = i * 3 + 2;
+      grids[k].init_col = j * 3;
+      grids[k].fin_col = j * 3 + 2;
+      grids[k].pnt = &sub_grids_checked[k];
+      pthread_create(&threadID[k+18], NULL, validity_check, &grids[k]);
+      k++;
+    }
+  }
+
+  for(i = 0; i< 27;i++){
+    pthread_join(threadID[i], NULL);
+  }
 
   /* Revisar si hay alg�n chequeo igual a 0 para todas las filas, columnas y subcuadr�culas */
   for (i = 0; i < 9; i++) {
+    // printf("%i %i %i\n", rows_checked[i], cols_checked[i], sub_grids_checked[i]);
     if ((rows_checked[i] == 0) || (cols_checked[i] == 0) || (sub_grids_checked[i] == 0)) {
       sol_valida = 0;
     }
   }
+  // printf("\n");
 
   return sol_valida;
 }
