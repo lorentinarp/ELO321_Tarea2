@@ -43,14 +43,14 @@ struct Area
   int fin_row;
   int init_col;
   int fin_col;
-  int *pnt;
+  int *pnt; /* Este es un puntero a un elemento del arreglo de filas, columnas o grillas*/
 };
 
-/* Declaraci�n de funciones */
+/* Declaracion de funciones */
 
 /*
- * @brief   : hace un chequeo de un �rea dada de sudoku_array
- * @param A : estructura que contiene los �ndices del �rea a chequear del arreglo bidimensional
+ * @brief   : hace un chequeo de un area dada de sudoku_array
+ * @param A : estructura que contiene los andices del area a chequear del arreglo bidimensional
  * @return  : 
  */
 void* validity_check(void *arg);
@@ -68,18 +68,18 @@ int main() {
   int valida = 1;
   double promedio = 0.0;
 
-  /* Tomar medici�n de tiempos para obtener promedio de las repeticiones */
+  /* Tomar medicion de tiempos para obtener promedio de las repeticiones */
   for (i = 0; i < repeticiones; i++) {
     /* Punto de referencia de inicio */
     gettimeofday(&tv1, NULL);
 
-    /* Ejecutar un proceso de revisi�n completa de sudoku_array */
+    /* Ejecutar un proceso de revision completa de sudoku_array */
     valida = sol_con_threads_POSIXAPI();
 
     /* Punto de referencia de fin, cuando todos los threads terminaron su trabajo */
     gettimeofday(&tv2, NULL);
 
-    /* Imprimir tiempo que tard� un proceso de revisi�n */
+    /* Imprimir tiempo que tardo un proceso de revision */
     double t = (double)(tv2.tv_usec - tv1.tv_usec) / 1000000.0 + (double)(tv2.tv_sec - tv1.tv_sec);
     printf("Time = %f sec\n", t);
 
@@ -99,14 +99,12 @@ int main() {
   return 0;
 }
 
-void* validity_check(void *arg) { //MODIFICAR PARA C
+void* validity_check(void *arg) {
   int i, j, k;
   int B[9] = { 0,0,0,0,0,0,0,0,0 };
   struct Area *A = arg;
-  
-  // printf("%i %i %i %i\n",A->init_row,A->fin_row,A->init_col,A->fin_col);
 
-  /* Modificar las posiciones de B seg�n los d�gitos presentes en sudoku_array */
+  /* Modificar las posiciones de B segun los digitos presentes en sudoku_array */
   for (i = A->init_row; i <= A->fin_row; i++) {
     for (j = A->init_col; j <= A->fin_col; j++) {
       for (k = 0; k < 9; k++) {
@@ -117,21 +115,21 @@ void* validity_check(void *arg) { //MODIFICAR PARA C
     }
   }
 
-  
   int exit = 1;
   k = 0;
   while ((k < 9) && (exit != 0)){
-    /* Revisar si hay alg�n d�gito entre 1 y 9 que est� ausente en B[9] */
+    /* Revisar si hay algun digito entre 1 y 9 que este ausente en B[9] */
     if (B[k] == 0) {
       exit = 0;
     }
     k++;
   }
   (*A->pnt) = exit;
-  
 }
 
-int sol_con_threads_POSIXAPI() { //MODIFICAR PARA C
+int sol_con_threads_POSIXAPI() {
+  /* Para evitar que el area sea modificada antes de que la función validity_check la pueda leer,
+  se hizo una estructura para cada fila, columan y grilla a revisar*/
   struct Area rows[9], cols[9], grids[9];
   int i, j;
   int sol_valida = 1;
@@ -173,18 +171,15 @@ int sol_con_threads_POSIXAPI() { //MODIFICAR PARA C
     }
   }
 
-  for(i = 0; i< 27;i++){
+  for(i = 0; i < 27;i++){
     pthread_join(threadID[i], NULL);
   }
 
-  /* Revisar si hay alg�n chequeo igual a 0 para todas las filas, columnas y subcuadr�culas */
+  /* Revisar si hay algun chequeo igual a 0 para todas las filas, columnas y subcuadriculas */
   for (i = 0; i < 9; i++) {
-    // printf("%i %i %i\n", rows_checked[i], cols_checked[i], sub_grids_checked[i]);
     if ((rows_checked[i] == 0) || (cols_checked[i] == 0) || (sub_grids_checked[i] == 0)) {
       sol_valida = 0;
     }
   }
-  // printf("\n");
-
   return sol_valida;
 }
