@@ -2,17 +2,23 @@
 
 De la ejecución de los programas utilizados se obtuvo los siguientes promedios de tiempo:
 
-Programa | Promedio de tiempo
----------------------------------
-A.c      | 0.000008 microsegundos
-B.c      | 0.000868 microsegundos
-C.c      | 0.002388 microsegundos
+Programa | Promedio de tiempo [microsegundos]
+---------------------------------------------
+   A.c   |             0.000008 
+   B.c   |             0.000868 
+   C.c   |             0.002388 
 
 Se concluye que el programa sin programación en paralelo y sin utilización de hilos es el que menos tarda
 en realizar el chequeo del arreglo bidimensional.
 
 También se probó ejecutar el programa B.c con diferente cantidad máxima de hilos a utilizar:
 
-Cantidad de hilos | Promedio de tiempo
---------------------------------------
-1                 | 0.000717 microsegundos
+Cantidad de hilos | Promedio de tiempo [microsegundos]
+------------------------------------------------------
+        1         |           0.000717 
+        5         |           0.000812 
+        12        |           0.001298 
+        27        |           0.001441 
+
+Se concluye que el programa B.c mientras menos hilos se utilice menos tiempo se demora en realizar los chequeos.
+
