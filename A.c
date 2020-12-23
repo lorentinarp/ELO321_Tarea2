@@ -2,7 +2,7 @@
 * @file   : A.c
 * @author : Camilo Donoso Collao
 *           Loreto Romero Ponce
-* @date   : xx/12/2020
+* @date   : 18/12/2020
 * @brief  : Código para tarea 02 en ELO 321, semestre 2020-2
 *           Corresponde a la parte A.
 */
