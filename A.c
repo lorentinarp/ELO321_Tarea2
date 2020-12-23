@@ -76,14 +76,14 @@ int main(){
 
     /* Imprimir tiempo que tardó un proceso de revisión */
     double t = (double)(tv2.tv_usec - tv1.tv_usec) / 1000000.0 + (double)(tv2.tv_sec - tv1.tv_sec);
-    printf("Time = %f sec\n", t);
+    printf("Time = %f microsegundos\n", t);
 
     promedio += t;
   }
   
   /* Imprimir tiempo que tardaron las repeticiones en promedio */
   promedio = promedio / (double)repeticiones;
-  printf("Time promedio = %f sec\n", promedio);
+  printf("Time promedio = %f microsegundos\n", promedio);
 
   /* Imprimir resultado de evaluación de sudoku_array */
   if (valida == 0)

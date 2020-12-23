@@ -81,14 +81,14 @@ int main() {
 
     /* Imprimir tiempo que tardo un proceso de revision */
     double t = (double)(tv2.tv_usec - tv1.tv_usec) / 1000000.0 + (double)(tv2.tv_sec - tv1.tv_sec);
-    printf("Time = %f sec\n", t);
+    printf("Time = %f microsegundos\n", t);
 
     promedio += t;
   }
 
   /* Imprimir tiempo que tardaron las repeticiones en promedio */
   promedio = promedio / (double)repeticiones;
-  printf("Time promedio = %f sec\n", promedio);
+  printf("Time promedio = %f microsegundos\n", promedio);
 
   /* Imprimir resultado de evaluaci�n de sudoku_array */
   if (valida == 0)
@@ -125,6 +125,7 @@ void* validity_check(void *arg) {
     k++;
   }
   (*A->pnt) = exit;
+  pthread_exit(NULL); /* Termina el hilo */
 }
 
 int sol_con_threads_POSIXAPI() {
