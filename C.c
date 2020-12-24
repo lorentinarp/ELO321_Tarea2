@@ -49,14 +49,14 @@ struct Area
 /* Declaracion de funciones */
 
 /*
- * @brief   : hace un chequeo de un area dada de sudoku_array
- * @param A : estructura que contiene los andices del area a chequear del arreglo bidimensional
- * @return  : 
+ * @brief     : hace un chequeo de un area dada de sudoku_array
+ * @param arg : puntero a estructura que contiene los índices del area a chequear del arreglo bidimensional
+ * @return    : rutina que entra a pthread_create() para ser ejecutada por hilo
  */
 void* validity_check(void *arg);
 
 /*
- * @brief   : hace la revisi�n completa de sudoku_array con threads generados con POSIX API
+ * @brief   : hace la revisión completa de sudoku_array con threads generados con POSIX API
  * @param - : -
  * @return  : si chequeo falla, retorna 0; en otro caso, retorna 1
  */
@@ -81,20 +81,20 @@ int main() {
 
     /* Imprimir tiempo que tardo un proceso de revision */
     double t = (double)(tv2.tv_usec - tv1.tv_usec) / 1000000.0 + (double)(tv2.tv_sec - tv1.tv_sec);
-    printf("Time = %f microsegundos\n", t);
+    printf("Time = %f segundos\n", t);
 
     promedio += t;
   }
 
   /* Imprimir tiempo que tardaron las repeticiones en promedio */
   promedio = promedio / (double)repeticiones;
-  printf("Time promedio = %f microsegundos\n", promedio);
+  printf("Time promedio = %f segundos\n", promedio);
 
-  /* Imprimir resultado de evaluaci�n de sudoku_array */
+  /* Imprimir resultado de evaluación de sudoku_array */
   if (valida == 0)
-    printf("Contenido del arreglo no es soluci�n v�lida.\n");
+    printf("Contenido del arreglo no es solución válida.\n");
   else
-    printf("Contenido del arreglo es soluci�n v�lida.\n");
+    printf("Contenido del arreglo es solución válida.\n");
 
   return 0;
 }
@@ -125,12 +125,14 @@ void* validity_check(void *arg) {
     k++;
   }
   (*A->pnt) = exit;
-  pthread_exit(NULL); /* Termina el hilo */
+
+  /* Termina el hilo */
+  pthread_exit(NULL); 
 }
 
 int sol_con_threads_POSIXAPI() {
   /* Para evitar que el area sea modificada antes de que la función validity_check la pueda leer,
-  se hizo una estructura para cada fila, columan y grilla a revisar*/
+  se hizo una estructura para cada fila, columna y grilla a revisar*/
   struct Area rows[9], cols[9], grids[9];
   int i, j;
   int sol_valida = 1;
@@ -158,7 +160,7 @@ int sol_con_threads_POSIXAPI() {
     pthread_create(&threadID[i+9], NULL, validity_check, &cols[i]);
   }
 
-  /* Chequeo de casillas*/
+  /* Chequeo de casillas */
   int k = 0;
   for (i = 0; i < 3; i++) {
     for (j = 0; j < 3; j++) {
@@ -172,6 +174,7 @@ int sol_con_threads_POSIXAPI() {
     }
   }
 
+  /* Esperar a que todos los hilos terminen */
   for(i = 0; i < 27;i++){
     pthread_join(threadID[i], NULL);
   }

@@ -77,14 +77,14 @@ int main(){
 
     /* Imprimir tiempo que tardó un proceso de revisión */
     double t = (double)(tv2.tv_usec - tv1.tv_usec) / 1000000.0 + (double)(tv2.tv_sec - tv1.tv_sec);
-    printf("Time = %f microsegundos\n", t);
+    printf("Time = %f segundos\n", t);
 
     promedio += t;
   }
 
   /* Imprimir tiempo que tardaron las repeticiones en promedio */
   promedio = promedio / (double)repeticiones;
-  printf("Time promedio = %f microsegundos\n", promedio);
+  printf("Time promedio = %f segundos\n", promedio);
   printf("Se utilizaron %d hilos\n",omp_get_max_threads());
 
   /* Imprimir resultado de evaluación de sudoku_array */
@@ -144,7 +144,7 @@ int sol_con_OpenMP_API() {
     }
   }
 
-  /* Chequeo de columnas*/
+  /* Chequeo de columnas */
   #pragma omp parallel for
   for (i = 0; i < 9; i++) {
     /*Critical section*/
@@ -158,7 +158,7 @@ int sol_con_OpenMP_API() {
     }
   }
 
-  /* Chequeo de casillas*/
+  /* Chequeo de casillas */
   int k = 0;
   #pragma omp parallel for
   for (i = 0; i < 3; i++) {
