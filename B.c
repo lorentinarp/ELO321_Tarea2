@@ -85,7 +85,6 @@ int main(){
   /* Imprimir tiempo que tardaron las repeticiones en promedio */
   promedio = promedio / (double)repeticiones;
   printf("Time promedio = %f segundos\n", promedio);
-  printf("Se utilizaron %d hilos\n",omp_get_max_threads());
 
   /* Imprimir resultado de evaluación de sudoku_array */
   if (valida == 0)

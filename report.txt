@@ -1,24 +1,38 @@
 ## Parte D
 
-De la ejecución de los programas utilizados se obtuvo los siguientes promedios de tiempo:
+De la ejecución de los programas utilizados se obtuvo los siguientes promedios de tiempo para un caso 'válido' de solución:
 
-Programa | Promedio de tiempo [microsegundos]
+Programa | Promedio de tiempo [segundos]
 ---------------------------------------------
    A.c   |             0.000008 
    B.c   |             0.000868 
    C.c   |             0.002388 
 
+Se puede ver que los tiempos promedio fueron en aumento desde el proceso de A hasta el proceso de C.
 Se concluye que el programa sin programación en paralelo y sin utilización de hilos es el que menos tarda
 en realizar el chequeo del arreglo bidimensional.
 
 También se probó ejecutar el programa B.c con diferente cantidad máxima de hilos a utilizar:
 
-Cantidad de hilos | Promedio de tiempo [microsegundos]
+Cantidad de hilos | Promedio de tiempo [segundos]
 ------------------------------------------------------
         1         |           0.000717 
         5         |           0.000812 
         12        |           0.001298 
         27        |           0.001441 
 
-Se concluye que el programa B.c mientras menos hilos se utilice menos tiempo se demora en realizar los chequeos.
+Se observa que una mayor cantidad de hilos no reduce el tiempo de ejecución, sino que sucede lo contrario.
+Se concluye que el programa B.c mientras menos hilos utilice, menos tiempo se demora en realizar los chequeos.
 
+Por último, se modificó el arreglo bidimensional a un caso 'no válido' y se obtuvo los siguientes promedios de tiempo:
+
+Programa | Promedio de tiempo [segundos]
+---------------------------------------------
+   A.c   |             0.000008 
+   B.c   |             0.000788 
+   C.c   |             0.002354 
+
+Se concluye que no hay diferencias significativas con el caso 'válido' de solución. 
+El programa sin programación en paralelo y sin utilización de hilos mostró ser la implementación con menor tiempo de ejecución.
+Esto puede deberse a que el uso de multi-threading en este caso se usaba durante el acceso a memoria compartida (variables
+globales), y siendo esta una sección crítica, debía ser accedida por un proceso a la vez, disminuyendo el rendimiento general.
